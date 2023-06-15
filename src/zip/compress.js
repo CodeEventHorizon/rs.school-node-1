@@ -6,16 +6,16 @@ import { fileURLToPath } from 'url';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const inputPath = `${dirname}/files/fileToCompress.txt`;
-const outputPath = `${dirname}/files/fileToDecompress.gz`;
+const outputPath = `${dirname}/files/archive.gz`;
 
 const compress = async (inputPathArg, outputPathArg) => {
   const readStream = fs.createReadStream(inputPathArg);
   const writeStream = fs.createWriteStream(outputPathArg);
   const gzipStream = zlib.createGzip();
 
-  await pipeline(readStream, gzipStream, () => writeStream);
-
-  console.log(`${inputPathArg} was compressed to ${outputPathArg}`);
+  await pipeline(readStream, gzipStream, writeStream, () => {
+    console.log(`${inputPathArg} was compressed to ${outputPathArg}`);
+  });
 };
 
 await compress(inputPath, outputPath);
