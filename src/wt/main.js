@@ -2,10 +2,13 @@ import { Worker } from 'worker_threads';
 import os from 'os';
 
 /**
- * @desc             - Function that creates a number of worker threads,
- *                     sends an incremental number to each worker,
- *                     and waits for all promises to resolve.
+ * Function that creates a number of worker threads,
+ * sends an incremental number to each worker,
+ * and waits for all promises to resolve.
+ *
  * @async
+ * @throws {Error}             throws an error if there is any issue with the thread.
+ * @returns {Promise<void>}    A Promise will resolve when all the workers complete their tasks.
  */
 const performCalculations = async () => {
   // create number of worker threads (equal to the number of host machine logical CPU cores)
@@ -24,35 +27,26 @@ const performCalculations = async () => {
       // Create a new worker thread with 10 + i as workerData argument
       const worker = new Worker('./src/wt/worker.js', { workerData: 10 + i });
 
-      // Listen for messages from the worker thread
       worker.on('message', (result) => {
-        // If message is received successfully, resolve the promise with the result
         resolve(result);
       });
 
-      // Listen for errors from the worker thread
       worker.on('error', (error) => {
-        // If there is an error in the worker thread, reject the promise with the error
         reject(error);
       });
 
-      // Listen for exit event from the worker thread
       worker.on('exit', (code) => {
-        // If the worker thread exits with a non-zero code, reject the promise with an error
+        // If the worker thread exits with a non-zero code...
         if (code !== 0) {
           reject(new Error(`Worker ${i + 1} stopped with exit code ${code}`));
         }
       });
     });
-    // Push the worker promise to the promises array
     promises.push(workerPromise);
   }
 
   try {
-    /*
-     * After all workers will finish, function should log array of results into console.
-     */
-
+    // After all workers will finish, function should log array of results into console.
     // Wait for all promises to resolve and store the results in an array
     const results = await Promise.all(promises);
     /**
@@ -65,8 +59,7 @@ const performCalculations = async () => {
      */
     console.log(results);
   } catch (error) {
-    // If there is an error while waiting for promises to resolve, throw an error
-    throw new Error(`Thread error: ${error}`);
+    throw new Error(`Thread Error: ${error}`);
   }
 };
 
