@@ -6,11 +6,11 @@ import { fileURLToPath } from 'url';
 /**
  * @type {string}
  */
-const dirname = path.dirname(fileURLToPath(import.meta.url));
+const DIRNAME = path.dirname(fileURLToPath(import.meta.url));
 /**
  * @type {string}
  */
-const filePath = `${dirname}/files/fileToCalculateHashFor.txt`;
+const FILEPATH = `${DIRNAME}/files/fileToCalculateHashFor.txt`;
 /**
  * @type {string}
  */
@@ -44,4 +44,4 @@ const calculateHash = async (filePathArg, algorithmArg, encodingArg) => {
   }
 };
 
-await calculateHash(filePath, ALGORITHM, ENCODING);
+await calculateHash(FILEPATH, ALGORITHM, ENCODING);
