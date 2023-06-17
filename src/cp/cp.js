@@ -7,26 +7,38 @@ import { spawn } from 'child_process';
  * @param {Array} args - Array of command-line arguments to be passed to child process.
  */
 const spawnChildProcess = async (args) => {
-  // Spawn new child process with script.js as command
-  const childProcess = spawn('node', ['./src/cp/files/script.js', ...args], {
-    stdio: ['pipe', 'pipe', 'inherit'],
-  });
+  await new Promise((resolve, reject) => {
+    // Spawn new child process with script.js
+    const childProcess = spawn('node', ['./src/cp/files/script.js', ...args], {
+      stdio: ['pipe', 'pipe', 'inherit'],
+    });
 
-  // Listen for data event on child process stdout stream, and log the received data to the console
-  childProcess.stdout.on('data', (data) => {
-    console.log(`Received from child process: ${data.toString()}`);
-  });
+    // Listen for data event on child process stdout stream
+    childProcess.stdout.on('data', (data) => {
+      console.log(`Received from child process: ${data.toString()}`);
+      resolve();
+    });
 
-  // Listen for input event on parent process stdin stream, and write the input to child process stdin stream
-  process.stdin.on('data', (input) => {
-    childProcess.stdin.write(input);
-  });
+    // Listen for input event on parent process stdin stream
+    process.stdin.on('data', (input) => {
+      childProcess.stdin.write(input);
+    });
 
-  // Listen for exit event on child process, and log the exit code to the console
-  childProcess.on('exit', (code, signal) => {
-    console.log(`Child process exited with code ${code}, signal ${signal}`);
+    // Listen for exit event on child process
+    childProcess.on('exit', (code, signal) => {
+      console.log(`Child process exited with code ${code}, signal ${signal}`);
+      if (code !== 0)
+        reject(new Error(`Child process stopped with exit code ${code}`));
+    });
+
+    // Listen for errors in the child process
+    childProcess.on('error', (err) => {
+      reject(err);
+    });
   });
 };
 
 // Call 'spawnChildProcess' with some test arguments
-spawnChildProcess(['arg1', 'arg2', 'arg3']);
+//! Requirement asked to not change it, but as the function is async
+//! The function should be called using `await` keyword (P.S. due to requirements I won't change it)
+spawnChildProcess(['M', 'U', 'L', 'A', 'H', 'E', 'M']);
