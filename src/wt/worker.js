@@ -18,6 +18,7 @@ const nthFibonacci = (n) =>
  *                     it will send back an error message instead of a result.
  *
  * @returns {void}
+ * @throws             if there's an error it sends a message back to main thread
  */
 const sendResult = () => {
   try {
@@ -31,7 +32,6 @@ const sendResult = () => {
     // Sends the result as a message to the main thread.
     parentPort.postMessage({ status: 'resolved', data: result });
   } catch (error) {
-    // If there's an error, send back to the main thread
     parentPort.postMessage({ status: 'error', data: null });
   }
 };
