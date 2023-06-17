@@ -2,32 +2,44 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-/*
- * In real world scenarios I think it's a great idea to separate
- * constants like strings to a different directory where they would be exported.
- * It gives a great look of the whole application
+/**
+ * File contents
+ * @type {string}
  */
-const fileContent = 'I am fresh and young';
-const errorText = 'FS operation failed';
-const ENOENT = 'ENOENT';
-const encoding = 'utf8';
-
-/*
- * Using path & url libraries is sort of an overkill, but
- * in most cases this is how it will be used in actual projects
- * I could just write create('./src/fs/files/fresh.txt')
+const FILECONTENT = 'I am fresh and young';
+/**
+ * Error text
+ * @type {string}
  */
-const dirname = path.dirname(fileURLToPath(import.meta.url));
-const filePath = `${dirname}/files/fresh.txt`;
+const FSFAILED = 'FS operation failed';
+/**
+ * Directory name
+ * @type {string}
+ */
+const DIRNAME = path.dirname(fileURLToPath(import.meta.url));
+/**
+ * File path
+ * @type {string}
+ */
+const FILEPATH = `${DIRNAME}/files/fresh.txt`;
 
-const create = async (filePath) => {
+/**
+ * @desc                       - Creates a new file at the given `filePath` with the given `fileContent`.
+ *                               If the file already exists, throws an `FSFAILED` error with the message `"FS operation failed"`.
+ * @param {string} filePath    - The path of the file that will be created
+ * @param {string} fileContent - text of the file
+ * @throws                     - Will throw an error if the file operation fails
+ *                               and if file already exists
+ * @returns {Promise<void>}    - A Promise that resolves when the file is successfully renamed
+ */
+const create = async (filePath, fileContent) => {
   try {
-    await fs.promises.access(filePath);
-    throw new Error(errorText);
+    await fs.promises.access(filePath, fs.constants.F_OK);
+    throw new Error(FSFAILED);
   } catch (error) {
-    if (error.code === ENOENT) {
+    if (error.code === 'ENOENT') {
       await fs.promises.writeFile(filePath, fileContent, {
-        encoding,
+        encoding: 'utf8',
       });
       console.log(`File ${filePath} created successfully`);
     } else {
@@ -36,4 +48,5 @@ const create = async (filePath) => {
   }
 };
 
-await create(filePath);
+// Call the create function
+await create(FILEPATH, FILECONTENT);
